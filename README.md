@@ -18,7 +18,7 @@ like AZ-104 can be added later with no schema change — see "Data model" below)
 Prerequisites: JDK 21, Docker (Desktop or Engine) running.
 
 ```bash
-./mvnw spring-boot:run    # starts the API on http://localhost:8080
+./mvnw spring-boot:run    # starts the API on http://localhost:8081
 ```
 
 That's it — a plain `./mvnw spring-boot:run`, or hitting "Run" on `AzureQuizBackendApplication` in
