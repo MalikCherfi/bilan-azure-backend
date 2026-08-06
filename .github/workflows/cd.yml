@@ -1,0 +1,98 @@
+name: Build and deploy
+
+on:
+    workflow_dispatch:
+
+env:
+    CONTAINER_NAME: "back"
+
+jobs:
+    buildImage:
+        permissions:
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        outputs:
+            acr_name: ${{ steps.get-acr.outputs.acr_name }}
+        steps:
+            # Checks out the repository this file is in
+            - uses: actions/checkout@v7
+
+            # Logs in with your Azure credentials
+            - name: Azure login
+              uses: azure/login@v3
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+            - name: Retrieve ACR name from ACR tags
+              id: get-acr
+              run: |
+                  ACR_NAME=$(az acr list --resource-group ${{ vars.RESOURCE_GROUP }} \
+                  --query "[?tags.owner=='malik-cherfi' && tags.environment=='bilan-tp' && tags.managed_by=='terraform'].name" -o tsv)
+                  echo "acr_name=$ACR_NAME" >> "$GITHUB_OUTPUT"
+
+            # TODO: replace with real key and URL
+            - name: Build and push image to ACR
+              run: |
+                  az acr build \
+                  --image ${{ steps.get-acr.outputs.acr_name }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }} \
+                  --registry ${{ steps.get-acr.outputs.acr_name }} \
+                  -g ${{ vars.RESOURCE_GROUP }} .
+
+    deploy:
+        permissions:
+            actions: read
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        needs: [buildImage]
+        steps:
+            # Checks out the repository this file is in
+            - uses: actions/checkout@v7
+
+            # Logs in with your Azure credentials
+            - name: Azure login
+              uses: azure/login@v3
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+            # Use kubelogin to configure your kubeconfig for Azure auth
+            - name: Set up kubelogin for non-interactive login
+              uses: azure/use-kubelogin@v1
+              with:
+                  kubelogin-version: "v0.2.19"
+
+            # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+            - name: Get K8s context
+              uses: azure/aks-set-context@v3
+              with:
+                  resource-group: ${{ vars.RESOURCE_GROUP_SHARED }}
+                  cluster-name: ${{ vars.CLUSTER_NAME }}
+                  admin: "false"
+                  use-kubelogin: "true"
+
+            # Bake Helm Chart vers un manifest bundle unique
+            - name: Bake Manifests with Helm
+              uses: azure/k8s-bake@v2
+              id: bake
+              with:
+                  renderEngine: "helm"
+                  helmChart: "./helm"
+                  helm-version: "latest"
+                  overrides: |
+                      acrName:${{ needs.buildImage.outputs.acr_name }}
+                      imageTag:${{ github.sha }}
+
+            # Deploys application based on manifest files from previous step
+            - name: Deploy application
+              uses: Azure/k8s-deploy@v4
+              with:
+                  action: deploy
+                  namespace: "malik-cherfi"
+                  manifests: ${{ steps.bake.outputs.manifestsBundle }}
+                  images: |
+                      ${{ needs.buildImage.outputs.acr_name }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
