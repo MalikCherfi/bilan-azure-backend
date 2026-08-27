@@ -19,3 +19,7 @@ redis:
 # Configuration Application
 app:
   apiKey: ""
+  storage:
+    accountName: ""
+    containerName: ""
+    sasToken: ""
