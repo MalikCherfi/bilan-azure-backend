@@ -91,7 +91,7 @@ jobs:
               id: keyvault
               with:
                   keyvault: ${{ vars.KEYVAULT_NAME }}
-                  secrets: "psql-admin-password, redis-password, redis-hostname, backend-api-key"
+                  secrets: "psql-admin-password, redis-password, redis-hostname, backend-api-key, storage-account-name, storage-container-name, storage-sas-token"
 
             - name: Set up kubelogin for non-interactive login
               uses: azure/use-kubelogin@v1
@@ -125,7 +125,7 @@ jobs:
                       app.apiKey:${{ steps.keyvault.outputs.backend-api-key }}
                       app.storage.accountName:${{ steps.keyvault.outputs.storage-account-name }}
                       app.storage.containerName:${{ steps.keyvault.outputs.storage-container-name }}
-                      app.storage.sasToken:${{ steps.keyvault.outputs.sas-token }}
+                      app.storage.sasToken:${{ steps.keyvault.outputs.storage-sas-token }}
 
             - name: Deploy application
               uses: Azure/k8s-deploy@v4
