@@ -33,23 +33,27 @@ spec:
 
             # Connexion PostgreSQL
             - name: DB_HOST
-              value: {{ .Values.db.host }}
+              value: {{ .Values.db.host | quote }}
             - name: DB_NAME
-              value: {{ .Values.db.name }}
+              value: {{ .Values.db.name | quote }}
             - name: DB_USERNAME
-              value: {{ .Values.db.user }}
+              value: {{ .Values.db.user | quote }}
             - name: DB_PASSWORD
-              value: {{ .Values.db.password }}
+              value: {{ .Values.db.password | quote }}
 
             # Connexion Redis Cache
             - name: REDIS_HOSTNAME
-              value: {{ .Values.redis.host }}
+              value: {{ .Values.redis.host | quote }}
             - name: REDIS_PORT
-              value: {{ .Values.redis.port }}
+              value: {{ .Values.redis.port | quote }}
             - name: REDIS_PASSWORD
-              value: {{ .Values.redis.password }}
+              value: {{ .Values.redis.password | quote }}
             - name: REDIS_SSL_ENABLED
-              value: {{ .Values.redis.sslEnabled }}
+              value: {{ .Values.redis.sslEnabled | quote }}
+
+            # Clé API pour le filtre de sécurité Spring Boot
+            - name: BACKEND_API_KEY
+              value: {{ .Values.app.apiKey | quote }}
 
             # Clé API pour le filtre de sécurité Spring Boot
             - name: BACKEND_API_KEY
