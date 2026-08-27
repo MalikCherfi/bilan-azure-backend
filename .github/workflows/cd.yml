@@ -15,10 +15,8 @@ jobs:
         outputs:
             acr_name: ${{ steps.get-acr.outputs.acr_name }}
         steps:
-            # Checks out the repository this file is in
             - uses: actions/checkout@v7
 
-            # Logs in with your Azure credentials
             - name: Azure login
               uses: azure/login@v3
               with:
@@ -33,7 +31,6 @@ jobs:
                   --query "[?tags.owner=='malik-cherfi' && tags.environment=='bilan-tp' && tags.managed_by=='terraform'].name" -o tsv)
                   echo "acr_name=$ACR_NAME" >> "$GITHUB_OUTPUT"
 
-            # TODO: replace with real key and URL
             - name: Build and push image to ACR
               run: |
                   az acr build \
@@ -49,10 +46,8 @@ jobs:
         runs-on: ubuntu-latest
         needs: [buildImage]
         steps:
-            # Checks out the repository this file is in
             - uses: actions/checkout@v7
 
-            # Logs in with your Azure credentials
             - name: Azure login
               uses: azure/login@v3
               with:
@@ -60,13 +55,18 @@ jobs:
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            # Use kubelogin to configure your kubeconfig for Azure auth
+            - name: Get secrets from Key Vault
+              uses: Azure/get-keyvault-secrets@v1
+              id: keyvault
+              with:
+                  keyvault: ${{ vars.KEYVAULT_NAME }}
+                  secrets: "psql-admin-password, redis-password, redis-hostname, backend-api-key"
+
             - name: Set up kubelogin for non-interactive login
               uses: azure/use-kubelogin@v1
               with:
                   kubelogin-version: "v0.2.19"
 
-            # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
             - name: Get K8s context
               uses: azure/aks-set-context@v3
               with:
@@ -75,7 +75,6 @@ jobs:
                   admin: "false"
                   use-kubelogin: "true"
 
-            # Bake Helm Chart vers un manifest bundle unique
             - name: Bake Manifests with Helm
               uses: azure/k8s-bake@v2
               id: bake
@@ -86,8 +85,14 @@ jobs:
                   overrides: |
                       acrName:${{ needs.buildImage.outputs.acr_name }}
                       imageTag:${{ github.sha }}
+                      db.host:psqlflexibleservermcherfi.postgres.database.azure.com
+                      db.user:malikcherfi
+                      db.name:psql_database
+                      db.password:${{ steps.keyvault.outputs.psql-admin-password }}
+                      redis.host:${{ steps.keyvault.outputs.redis-hostname }}
+                      redis.password:${{ steps.keyvault.outputs.redis-password }}
+                      app.apiKey:${{ steps.keyvault.outputs.backend-api-key }}
 
-            # Deploys application based on manifest files from previous step
             - name: Deploy application
               uses: Azure/k8s-deploy@v4
               with:
