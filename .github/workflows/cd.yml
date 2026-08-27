@@ -124,6 +124,9 @@ jobs:
                       redis.port:"6380"
                       redis.password:${{ steps.keyvault.outputs.redis-password }}
                       app.apiKey:${{ steps.keyvault.outputs.backend-api-key }}
+                      app.storage.accountName:${{ steps.keyvault.outputs.storage-account-name }}
+                      app.storage.containerName:${{ steps.keyvault.outputs.storage-container-name }}
+                      app.storage.sasToken:${{ steps.keyvault.outputs.sas-token }}
 
             - name: Deploy application
               uses: Azure/k8s-deploy@v4
