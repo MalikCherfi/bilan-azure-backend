@@ -12,7 +12,7 @@ db:
 # Configuration Redis Cache
 redis:
   host: ""
-  port: "6379"
+  port: "6380" # Azure Managed Redis's default port ( REDIS_SSL_ENABLED: true)
   password: ""
   sslEnabled: "true"
 
