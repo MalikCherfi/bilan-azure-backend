@@ -111,6 +111,10 @@ spring:
   config:
     activate:
       on-profile: aks
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME:psql_database}?sslmode=require
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   cloud:
     azure:
       storage:
