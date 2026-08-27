@@ -121,7 +121,6 @@ jobs:
                       db.name:psql_database
                       db.password:${{ steps.keyvault.outputs.psql-admin-password }}
                       redis.host:${{ steps.keyvault.outputs.redis-hostname }}
-                      redis.port:"6380"
                       redis.password:${{ steps.keyvault.outputs.redis-password }}
                       app.apiKey:${{ steps.keyvault.outputs.backend-api-key }}
                       app.storage.accountName:${{ steps.keyvault.outputs.storage-account-name }}
