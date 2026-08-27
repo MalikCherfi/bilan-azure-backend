@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-app
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: back
+      app.kubernetes.io/instance: back-app
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/part-of: back-app
+      app.kubernetes.io/managed-by: Helm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: back
+        app.kubernetes.io/instance: back-app
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: back-app
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      containers:
+        - name: back-container
+          image: '{{ .Values.acrName }}.azurecr.io/back:{{ .Values.imageTag }}'
+          ports:
+            - containerPort: 8080
+          env:
+            # Active le profil Spring Boot 'aks' de ton application.yml
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aks"
+
+            # Connexion PostgreSQL
+            - name: DB_HOST
+              value: {{ .Values.db.host }}
+            - name: DB_NAME
+              value: {{ .Values.db.name }}
+            - name: DB_USERNAME
+              value: {{ .Values.db.user }}
+            - name: DB_PASSWORD
+              value: {{ .Values.db.password }}
+
+            # Connexion Redis Cache
+            - name: REDIS_HOSTNAME
+              value: {{ .Values.redis.host }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.password }}
+            - name: REDIS_SSL_ENABLED
+              value: {{ .Values.redis.sslEnabled }}
+
+            # Clé API pour le filtre de sécurité Spring Boot
+            - name: BACKEND_API_KEY
+              value: {{ .Values.app.apiKey }}
+          resources:
+            requests:
+              cpu: '200m'
+              memory: '256Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'
