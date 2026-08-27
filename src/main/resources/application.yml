@@ -36,7 +36,7 @@ management:
 
 app:
   cors:
-    allowed-origins: http://localhost:4200
+    allowed-origins: http://4.176.106.72
   security:
     # Empty by default (local dev): the filter lets every request through.
     # In prod, Azure App Service injects BACKEND_API_KEY (from Key Vault via
