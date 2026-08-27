@@ -54,10 +54,6 @@ spec:
             # Clé API pour le filtre de sécurité Spring Boot
             - name: BACKEND_API_KEY
               value: {{ .Values.app.apiKey | quote }}
-
-            # Clé API pour le filtre de sécurité Spring Boot
-            - name: BACKEND_API_KEY
-              value: {{ .Values.app.apiKey }}
           resources:
             requests:
               cpu: '200m'
