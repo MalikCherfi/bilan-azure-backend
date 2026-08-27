@@ -1,3 +1,21 @@
-acrName: 'monacr'
-imageTag: 'latest'
-namespace: 'malik-cherfi'
+acrName: "containerregistrymcherfi"
+imageTag: "latest"
+namespace: "malik-cherfi"
+
+# Configuration Base de données
+db:
+  host: ""
+  user: ""
+  name: "psql_database"
+  password: ""
+
+# Configuration Redis Cache
+redis:
+  host: ""
+  port: 6379
+  password: ""
+  sslEnabled: "true"
+
+# Configuration Application
+app:
+  apiKey: ""
