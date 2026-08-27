@@ -7,6 +7,10 @@ on:
                 description: "Construire l'image Docker avant le déploiement ?"
                 type: boolean
                 default: true
+            image_tag:
+                description: "Tag de l'image à déployer (laisser vide pour utiliser github.sha)"
+                type: string
+                default: ""
 
 env:
     CONTAINER_NAME: "back"
@@ -50,9 +54,9 @@ jobs:
         # Permet à deploy de s'exécuter si buildImage est OK OU s'il a été ignoré (skipped)
         if: ${{ !cancelled() && !failure() }}
         permissions:
-          actions: read
-          contents: read
-          id-token: write
+            actions: read
+            contents: read
+            id-token: write
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
