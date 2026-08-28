@@ -1,5 +1,33 @@
 # azure-quiz-backend
 
+Backend Spring Boot déployé sur AKS via Helm, CI/CD GitHub Actions (OIDC).
+
+## Contenu
+- `helm/` : Deployment, Service, values.yaml
+- `application.yml` : profils Spring (`default` local, `prod` App Service, `aks` cluster)
+- Workflow `Build and deploy` : build image (ACR) → secrets Key Vault → bake Helm → deploy sur AKS
+
+## Profils Spring
+- **default** (local) : Postgres/Azurite local, sans clé API
+- **prod** (App Service) : Managed Identity + Storage Blob
+- **aks** (cluster) : credentials injectés via env vars (DB, Redis, Storage SAS, API key)
+
+## Déploiement
+Workflow manuel (`workflow_dispatch`) :
+- `build_image` : construire l'image avant déploiement (défaut `true`)
+- `image_tag` : tag à déployer (défaut = SHA du commit)
+
+Secrets injectés depuis Key Vault au déploiement : `psql-admin-password`, `redis-password`, `redis-hostname`, `backend-api-key`, `storage-account-name`, `storage-container-name`, `storage-sas-token`.
+
+## Values Helm
+`acrName`, `imageTag`, `namespace`, `db.*`, `redis.*`, `app.apiKey`, `app.storage.*`
+
+## Secrets / Variables GitHub
+Secrets : `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`
+Variables : `RESOURCE_GROUP`, `RESOURCE_GROUP_SHARED`, `CLUSTER_NAME`, `KEYVAULT_NAME`
+
+## LOCAL
+
 Spring Boot REST API for the Microsoft Azure certifications revision app (AZ-900 to start, other certifications
 like AZ-104 can be added later with no schema change — see "Data model" below).
 
