@@ -2,21 +2,18 @@ acrName: "containerregistrymcherfi"
 imageTag: "latest"
 namespace: "malik-cherfi"
 
-# Configuration Base de données
 db:
   host: ""
   user: ""
   name: "psql_database"
   password: ""
 
-# Configuration Redis Cache
 redis:
   host: ""
   port: 10000 # Azure Managed Redis's default port ( REDIS_SSL_ENABLED: true)
   password: ""
   sslEnabled: "true"
 
-# Configuration Application
 app:
   apiKey: ""
   storage:
