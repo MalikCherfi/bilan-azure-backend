@@ -17,7 +17,6 @@ env:
 
 jobs:
     buildImage:
-        # S'exécute uniquement si l'option build_image est cochée (true par défaut)
         if: ${{ inputs.build_image != false }}
         permissions:
             contents: read
@@ -51,7 +50,6 @@ jobs:
 
     deploy:
         needs: [buildImage]
-        # Permet à deploy de s'exécuter si buildImage est OK OU s'il a été ignoré (skipped)
         if: ${{ !cancelled() && !failure() }}
         permissions:
             actions: read
@@ -68,7 +66,6 @@ jobs:
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            # Récupération sécurisée du nom de l'ACR et du tag (qu'il y ait eu build ou non)
             - name: Resolve ACR name and Tag
               id: get-acr
               run: |
