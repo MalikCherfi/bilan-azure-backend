@@ -27,11 +27,10 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            # Active le profil Spring Boot 'aks' de ton application.yml
             - name: SPRING_PROFILES_ACTIVE
               value: "aks"
 
-            # Connexion PostgreSQL
+            # PostgreSQL connection
             - name: DB_HOST
               value: {{ .Values.db.host | quote }}
             - name: DB_NAME
@@ -41,7 +40,7 @@ spec:
             - name: DB_PASSWORD
               value: {{ .Values.db.password | quote }}
 
-            # Connexion Redis Cache
+            # Redis Cache connection
             - name: REDIS_HOSTNAME
               value: {{ .Values.redis.host | quote }}
             - name: REDIS_PORT
@@ -51,11 +50,11 @@ spec:
             - name: REDIS_SSL_ENABLED
               value: {{ .Values.redis.sslEnabled | quote }}
 
-            # Clé API pour le filtre de sécurité Spring Boot
+            # API key for backend security
             - name: BACKEND_API_KEY
               value: {{ .Values.app.apiKey | quote }}
 
-            # Configuration du stockage Azure Blob
+            # Azure blob storage configuration
             - name: STORAGE_ACCOUNT_NAME
               value: {{ .Values.app.storage.accountName | quote }}
             - name: STORAGE_CONTAINER_NAME
